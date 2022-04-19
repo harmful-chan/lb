@@ -2,7 +2,7 @@
 
 S=
 if [ "$USER" != "root" ]; then
-    S=$(which sudo)
+    S=sudo
 fi
 
 function preinstall(){
@@ -22,5 +22,5 @@ function preinstall(){
         exit 1
     fi
 
-    $S $INSTALLER -y install qemu gcc make wget
+    $S $INSTALLER -y install qemu gcc make wget kpartx
 }

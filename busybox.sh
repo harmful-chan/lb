@@ -17,7 +17,8 @@ function config_busybox_menu(){
 
     if [ -d $BUSYBOX_DIR ]; then 
         cd $BUSYBOX_DIR 
-        make menuconfig 
+        make defconfig
+         
         cd - >/dev/null
     fi
 }

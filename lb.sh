@@ -1,46 +1,15 @@
 #!/bin/bash
 
 
-BUILD_KERNEL=
-BUILD_BUSYBOX=
-BUILD_MENU=
-BUILD_MAKE_ARGS=
-BUILD_GRUB=
-if [[ $# -eq 0 ]]; then
-    # --menu --kernel --busybox --grub --make-args "-j2"
-    BUILD_KERNEL=true
-    BUILD_BUSYBOX=true
-    BUILD_MENU=true
-    BUILD_GRUB=true
-    BUILD_MAKE_ARGS="-j2"
-else 
+BUILD_MAKE_ARGS="-j2"
+BUILD_MENU=true          # 打开菜单选项
+BUILD_KERNEL=true        # 编译内核
+BUILD_BUSYBOX=true       # 编译busybox
+BUILD_GRUB=true          # 打包成grub启动盘
 
-    while [[ $# -gt 0 ]]
-    do
-        case $key in
-            --menu)
-                BUILD_MENU=true
-            ;;
-            --grub)
-                BUILD_GRUB=true
-            ;;
-            --kernel)
-                BUILD_KERNEL=true
-            ;;
-            --busybox)
-                BUILD_BUSYBOX=true
-            ;; 
-            --make-args)
-                shift
-                BUILD_MAKE_ARGS=$key
-            ;;    
-            *)
-            ;;      
-        esac
-        shift
-    done
-fi
-
+GRUB_CONVERT_VHD=true    # 启动盘转为 hyper-v 第一代支持盘（2008-2012）
+GRUB_CONVERT_VHDX=true   # 启动盘转为 hyper-v 第二代支持盘（2016+）
+GRUB_CONVERT_VMDK=true   # 启动盘转为 vmware 支持盘
 
 set -e
 
@@ -106,4 +75,14 @@ w" | fdisk ${GRUB_IMG}.disk
     kpartx -d $FREE_DERVE  
     losetup -d $FREE_DERVE  
     rm -rf fsm
+fi
+
+if [ "$GRUB_CONVERT_VHD" == "true" ]; then
+    qemu-img convert -f raw -O vpc ${GRUB_IMG}.disk ${GRUB_IMG}.vhd 
+fi
+if [ "$GRUB_CONVERT_VHDX" == "true" ]; then
+    qemu-img convert -f raw -O vhdx ${GRUB_IMG}.disk ${GRUB_IMG}.vhdx
+fi
+if [ "$GRUB_CONVERT_VMDK" == "true" ]; then
+    qemu-img convert -f vmdk -O vpc ${GRUB_IMG}.disk ${GRUB_IMG}.vmdk
 fi

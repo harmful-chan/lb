@@ -8,11 +8,11 @@ BUILD_MAKE_ARGS=
 BUILD_GRUB=
 if [[ $# -eq 0 ]]; then
     # --menu --kernel --busybox --grub --make-args "-j2"
-    #BUILD_KERNEL=true
-    #BUILD_BUSYBOX=true
-    #BUILD_MENU=true
+    BUILD_KERNEL=true
+    BUILD_BUSYBOX=true
+    BUILD_MENU=true
     BUILD_GRUB=true
-    #BUILD_MAKE_ARGS="-j2"
+    BUILD_MAKE_ARGS="-j2"
 else 
 
     while [[ $# -gt 0 ]]

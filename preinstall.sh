@@ -1,9 +1,6 @@
 #!/bin/bash
 
-S=
-if [ "$USER" != "root" ]; then
-    S=sudo
-fi
+source $(dirname $BASH_SOURCE)/.env
 
 function preinstall(){
     INSTALLER=

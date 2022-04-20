@@ -75,9 +75,9 @@ EOF
 EOF
     chmod 755 etc/inittab
     cd dev
-    sudo mknod console c 5 1
-    sudo mknod null c 1 3
-    sudo mknod tty1 c 4 1 
+    $S mknod console c 5 1
+    $S mknod null c 1 3
+    $S mknod tty1 c 4 1 
     cd ../..
 }
 
@@ -88,9 +88,9 @@ function package_base_fs(){
         dd if=/dev/zero of=${FS_IMG}.disk bs=1M count=32
         mkfs.ext3 ${FS_IMG}.disk
         mkdir fsm
-        sudo mount -o loop ${FS_IMG}.disk ./fsm
-        sudo cp -rf ./bsfs/* fsm
-        sudo umount ./fsm
+        $S mount -o loop ${FS_IMG}.disk ./fsm
+        $S cp -rf ./bsfs/* fsm
+        $S umount ./fsm
         gzip --best -c ${FS_IMG}.disk > ${FS_IMG_PKG}
         rm -rf fsm
     fi

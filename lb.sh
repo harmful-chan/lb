@@ -53,27 +53,27 @@ p
 
 w" | fdisk ${GRUB_IMG}.disk
 
-    FREE_DERVE=$(sudo losetup -f)    # 可用设备，/dev/loop0之类的
+    FREE_DERVE=$($S losetup -f)    # 可用设备，/dev/loop0之类的
     FREE_DERV_P1=${FREE_DERVE/loop/mapper\/loop}p1     # 磁盘的第一个分区，p1,p2..表示第1第2...个分区; /dev/mapper/loop0p1
     #losetup -o 1048576 $FREE_DERVE ${GRUB_IMG}.disk    # 挂载块设备跳过引导区前1M空间
-    sudo kpartx -av   ${GRUB_IMG}.disk $FREE_DERVE  # 挂在分区
-    sudo mkfs.ext4  $FREE_DERV_P1    
+    $S kpartx -av   ${GRUB_IMG}.disk $FREE_DERVE  # 挂在分区
+    $S mkfs.ext4  $FREE_DERV_P1    
 
     rm -rf fsm
     mkdir fsm
-    sudo mount $FREE_DERV_P1 fsm/
-    sudo grub-install --root-directory=$(pwd)/fsm --no-floppy --target=i386-pc ${GRUB_IMG}.disk  || exit $?
-    sudo cp $KERNEL_IMG $FS_IMG_PKG fsm/boot/
+    $S mount $FREE_DERV_P1 fsm/
+    $S grub-install --root-directory=$(pwd)/fsm --no-floppy --target=i386-pc ${GRUB_IMG}.disk  || exit $?
+    $S cp $KERNEL_IMG $FS_IMG_PKG fsm/boot/
     if [ -d fsm/boot/grub ]; then
         # 写启动项配置
-        echo 'menuentry "my_linux" {' | sudo tee fsm/boot/grub/grub.cfg
-        echo "    linux (hd0,msdos1)/boot/$KERNEL_IMG root=/dev/ram rw init=/bin/ash" | sudo tee -a fsm/boot/grub/grub.cfg
-        echo "    initrd (hd0,msdos1)/boot/$FS_IMG_PKG" | sudo tee -a fsm/boot/grub/grub.cfg
-        echo "}" | sudo tee -a fsm/boot/grub/grub.cfg
+        echo 'menuentry "my_linux" {' | $S tee fsm/boot/grub/grub.cfg
+        echo "    linux (hd0,msdos1)/boot/$KERNEL_IMG root=/dev/ram rw init=/bin/ash" | $S tee -a fsm/boot/grub/grub.cfg
+        echo "    initrd (hd0,msdos1)/boot/$FS_IMG_PKG" | $S tee -a fsm/boot/grub/grub.cfg
+        echo "}" | $S tee -a fsm/boot/grub/grub.cfg
     fi
-    sudo umount fsm/
-    sudo kpartx -d $FREE_DERVE  
-    sudo losetup -d $FREE_DERVE  
+    $S umount fsm/
+    $S kpartx -d $FREE_DERVE  
+    $S losetup -d $FREE_DERVE  
     rm -rf fsm
 fi
 

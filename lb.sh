@@ -1,25 +1,14 @@
 #!/bin/bash
-
-
-BUILD_MAKE_ARGS="-j2"
-BUILD_MENU=true          # 打开菜单选项
-#BUILD_KERNEL=true        # 编译内核
-#BUILD_BUSYBOX=true       # 编译busybox
-BUILD_GRUB=true          # 打包成grub启动盘
-
-GRUB_CONVERT_VHD=true    # 启动盘转为 hyper-v 第一代支持盘（2008-2012）
-GRUB_CONVERT_VHDX=true   # 启动盘转为 hyper-v 第二代支持盘（2016+）
-GRUB_CONVERT_VMDK=true   # 启动盘转为 vmware 支持盘
-
 set -e
 
 DIR=$(dirname $BASH_SOURCE)
 source $DIR/preinstall.sh
+source $DIR/postclean.sh
 source $DIR/kernel.sh
 source $DIR/busybox.sh
 
 # 安装工具
-preinstall || exit $?
+preinstall 
 
 # 编译linux
 if [ "$BUILD_KERNEL" == "true" ]; then
@@ -86,3 +75,5 @@ fi
 if [ "$GRUB_CONVERT_VMDK" == "true" ]; then
     qemu-img convert -f raw -O vmdk ${GRUB_IMG}.disk ${GRUB_IMG}.vmdk
 fi
+
+postclean    # 清楚环境变量

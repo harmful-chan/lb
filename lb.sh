@@ -3,8 +3,8 @@
 
 BUILD_MAKE_ARGS="-j2"
 BUILD_MENU=true          # 打开菜单选项
-BUILD_KERNEL=true        # 编译内核
-BUILD_BUSYBOX=true       # 编译busybox
+#BUILD_KERNEL=true        # 编译内核
+#BUILD_BUSYBOX=true       # 编译busybox
 BUILD_GRUB=true          # 打包成grub启动盘
 
 GRUB_CONVERT_VHD=true    # 启动盘转为 hyper-v 第一代支持盘（2008-2012）
@@ -53,27 +53,27 @@ p
 
 w" | fdisk ${GRUB_IMG}.disk
 
-    FREE_DERVE=$(losetup -f)    # 可用设备，/dev/loop0之类的
+    FREE_DERVE=$(sudo losetup -f)    # 可用设备，/dev/loop0之类的
     FREE_DERV_P1=${FREE_DERVE/loop/mapper\/loop}p1     # 磁盘的第一个分区，p1,p2..表示第1第2...个分区; /dev/mapper/loop0p1
     #losetup -o 1048576 $FREE_DERVE ${GRUB_IMG}.disk    # 挂载块设备跳过引导区前1M空间
-    kpartx -av   ${GRUB_IMG}.disk $FREE_DERVE  # 挂在分区
-    mkfs.ext4  $FREE_DERV_P1    
+    sudo kpartx -av   ${GRUB_IMG}.disk $FREE_DERVE  # 挂在分区
+    sudo mkfs.ext4  $FREE_DERV_P1    
 
     rm -rf fsm
     mkdir fsm
-    mount $FREE_DERV_P1 fsm/
-    grub-install --root-directory=$(pwd)/fsm --no-floppy --target=i386-pc ${GRUB_IMG}.disk  || exit $?
-    cp $KERNEL_IMG $FS_IMG_PKG fsm/boot/
+    sudo mount $FREE_DERV_P1 fsm/
+    sudo grub-install --root-directory=$(pwd)/fsm --no-floppy --target=i386-pc ${GRUB_IMG}.disk  || exit $?
+    sudo cp $KERNEL_IMG $FS_IMG_PKG fsm/boot/
     if [ -d fsm/boot/grub ]; then
         # 写启动项配置
-        echo 'menuentry "my_linux" {' >fsm/boot/grub/grub.cfg
-        echo "    linux (hd0,msdos1)/boot/$KERNEL_IMG root=/dev/ram rw init=/bin/ash"  >>fsm/boot/grub/grub.cfg
-        echo "    initrd (hd0,msdos1)/boot/$FS_IMG_PKG" >>fsm/boot/grub/grub.cfg
-        echo "}" >>fsm/boot/grub/grub.cfg
+        echo 'menuentry "my_linux" {' | sudo tee fsm/boot/grub/grub.cfg
+        echo "    linux (hd0,msdos1)/boot/$KERNEL_IMG root=/dev/ram rw init=/bin/ash" | sudo tee -a fsm/boot/grub/grub.cfg
+        echo "    initrd (hd0,msdos1)/boot/$FS_IMG_PKG" | sudo tee -a fsm/boot/grub/grub.cfg
+        echo "}" | sudo tee -a fsm/boot/grub/grub.cfg
     fi
-    umount fsm/
-    kpartx -d $FREE_DERVE  
-    losetup -d $FREE_DERVE  
+    sudo umount fsm/
+    sudo kpartx -d $FREE_DERVE  
+    sudo losetup -d $FREE_DERVE  
     rm -rf fsm
 fi
 
@@ -84,5 +84,5 @@ if [ "$GRUB_CONVERT_VHDX" == "true" ]; then
     qemu-img convert -f raw -O vhdx ${GRUB_IMG}.disk ${GRUB_IMG}.vhdx
 fi
 if [ "$GRUB_CONVERT_VMDK" == "true" ]; then
-    qemu-img convert -f vmdk -O vpc ${GRUB_IMG}.disk ${GRUB_IMG}.vmdk
+    qemu-img convert -f raw -O vmdk ${GRUB_IMG}.disk ${GRUB_IMG}.vmdk
 fi
